@@ -30,3 +30,27 @@ def login():
             return {"msg": "User login successfully."}, 200
 
     return {"msg": "User not found."}, 404
+
+
+@auth_blueprint.route("/register", methods=["POST"])
+def register():
+    if not request.is_json:
+        return jsonify({"msg": "Missing JSON in request"}), 400
+
+    username = request.json.get("email", None)
+    password = request.json.get("password", None)
+
+    if not username:
+        return jsonify({"msg": "Missing username parameter"}), 400
+
+    if not password:
+        return jsonify({"msg": "Missing password parameter"}), 400
+
+    for user in users:
+        if user.email == username:
+            return {"msg": "User already exists."}, 400
+
+    new_user = UserEntity(str(len(users) + 1), username, password)
+    users.append(new_user)
+
+    return {"msg": "User registered successfully."}, 201
