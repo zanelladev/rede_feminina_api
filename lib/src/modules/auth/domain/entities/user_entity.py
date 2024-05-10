@@ -1,9 +1,7 @@
 class UserEntity:
-    def __init__(self, userId, email):
-        if userId is None or email is None:
-            raise ValueError("userId and email are required.")
+    def __init__(self, userId: str, email: str, password: str):
+        if userId is None or email is None or password is None:
+            raise ValueError("userId, email, and password are required.")
         self.userId = userId
         self.email = email
-
-
-UserEntity(userId=1)
+        self.password = password
