@@ -12,6 +12,8 @@ class FlaskFactory:
         if cls._app is None:
             cls._app = cls.create_app()
 
+        return cls._app
+
     @staticmethod
     def create_app():
         app = Flask(__name__)
