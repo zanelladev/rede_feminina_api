@@ -6,9 +6,9 @@ class AuthRoutes:
     blueprint = Blueprint("auth", __name__, url_prefix="/auth")
 
     users = [
-        UserEntity('id1', 'email1', 'password1'),
-        UserEntity('id2', 'email2', 'password2'),
-        UserEntity('id3', 'email3', 'password3')
+        UserEntity('id1', 'email1', 'password1', 'name1', 'surname1'),
+        UserEntity('id2', 'email2', 'password2', 'name2', 'surname2'),
+        UserEntity('id3', 'email3', 'password3', 'name3', 'surname3')
     ]
 
     @classmethod

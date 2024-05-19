@@ -1,6 +1,8 @@
 from flask import Flask
 from flask_cors import CORS
 
+from lib.src.modules.auth.routes.auth_routes import AuthRoutes
+
 
 class Server:
     _app = None
@@ -14,7 +16,7 @@ class Server:
     def create_app():
         app = Flask(__name__)
 
-     #   Server._register_blueprints(app)
+        Server._register_blueprints(app)
 
         CORS(app)
 
@@ -26,7 +28,8 @@ class Server:
 
     @staticmethod
     def _register_blueprints(app: Flask):
-        # app.register_blueprint(AuthRoutes.blueprint)
+        app.register_blueprint(AuthRoutes.blueprint)
+
         return
 
     @property
