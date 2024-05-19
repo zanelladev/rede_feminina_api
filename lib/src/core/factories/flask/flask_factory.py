@@ -4,7 +4,7 @@ from flask_cors import CORS
 from lib.src.modules.auth.routes.auth_routes import AuthRoutes
 
 
-class Server:
+class FlaskFactory:
     _app = None
 
     @classmethod
@@ -16,7 +16,7 @@ class Server:
     def create_app():
         app = Flask(__name__)
 
-        Server._register_blueprints(app)
+        FlaskFactory._register_blueprints(app)
 
         CORS(app)
 
