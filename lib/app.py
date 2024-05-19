@@ -1,8 +1,8 @@
 from lib.src.app_injections import AppInjections
-from lib.src.core.flask.server import Server
+from lib.src.core.factories.flask.flask_factory import FlaskFactory
 
 AppInjections.registerBinds()
-app = Server.create_app()
+app = FlaskFactory.create_app()
 
 if __name__ == "__main__":
     app.run()
