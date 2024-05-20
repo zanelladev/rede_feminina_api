@@ -1,6 +1,5 @@
 from flask import request, jsonify, Blueprint
 from lib.src.core.services.injector.injector import Injector
-from lib.src.modules.auth.domain.entities.user_entity import UserEntity
 from lib.src.modules.auth.domain.exceptions.user_not_found_exception import UserNotFoundException
 from lib.src.modules.auth.domain.repositories.i_auth_repository import IAuthRepository
 
