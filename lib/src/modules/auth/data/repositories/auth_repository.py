@@ -1,23 +1,9 @@
-import pyrebase
 from lib.src.modules.auth.domain.repositories.i_auth_repository import IAuthRepository
-from firebase_admin import auth
 
 
 class AuthRepository(IAuthRepository):
-    def __init__(self, firebase):
-        self._firebase = firebase
-        self.firebase_config = {
-            "apiKey": "AIzaSyBxSOnMjKepRMs9f2sjH8pFWCZaCONjIKg",
-            "authDomain": "redefemininacancerjgs.firebaseapp.com",
-            "projectId": "redefemininacancerjgs",
-            "storageBucket": "redefemininacancerjgs.appspot.com",
-            "messagingSenderId": "294193398988",
-            "appId": "1:294193398988:web:082689ee9346faa5fdee69",
-            "measurementId": "G-9HG1H1JD5K",
-            "databaseURL": "https://redefemininacancerjgs.firebaseio.com"
-        }
-        self.firebase = pyrebase.initialize_app(self.firebase_config)
-        self.auth = self.firebase.auth()
+    def __init__(self, firebaseAuth):
+        self.auth = firebaseAuth
 
     async def signIn(self):
         try:
