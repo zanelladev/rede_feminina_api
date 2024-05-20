@@ -8,7 +8,7 @@ class FlaskFactory:
     _app = None
 
     @classmethod
-    def init(cls):
+    def instance(cls):
         if cls._app is None:
             cls._app = cls.create_app()
 
@@ -31,9 +31,4 @@ class FlaskFactory:
     @staticmethod
     def _register_blueprints(app: Flask):
         app.register_blueprint(AuthRoutes.blueprint)
-
         return
-
-    @property
-    def app(self):
-        return self._app

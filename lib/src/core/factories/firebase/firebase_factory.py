@@ -1,12 +1,15 @@
-import firebase_admin
-from firebase_admin import credentials
+import json
+import os
+import pyrebase
+
+from lib.src.core.factories.firebase.constants.firebase_constants import FirebaseConstants
 
 
-class FirebaseAdminFactory:
+class FirebaseFactory:
     _instance = None
 
     @classmethod
-    def init(cls):
+    def instance(cls):
         if cls._instance is None:
             cls._instance = cls._create()
 
@@ -14,11 +17,14 @@ class FirebaseAdminFactory:
 
     @staticmethod
     def _create():
-        cred = credentials.Certificate("firebase_credentials.json")
-        instance = firebase_admin.initialize_app(cred)
+        project_path = os.getcwd()
+        firebase_config_path = os.path.join(
+            project_path, FirebaseConstants.firebase_config_path)
 
-        return instance
+        with open(firebase_config_path) as f:
+            firebase_config = json.load(f)
 
-    @property
-    def instance(self):
-        return self._instance
+        firebase = pyrebase.initialize_app(firebase_config)
+        auth = firebase.auth()
+
+        return auth
