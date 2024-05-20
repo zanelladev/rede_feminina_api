@@ -6,7 +6,6 @@ from lib.src.modules.auth.domain.repositories.i_auth_repository import IAuthRepo
 
 
 class AuthRoutes:
-
     blueprint = Blueprint("auth", __name__, url_prefix="/auth")
 
     @classmethod
