@@ -2,7 +2,7 @@ import firebase_admin
 from firebase_admin import credentials
 
 
-class FirebaseFactory:
+class FirebaseAdminFactory:
     _instance = None
 
     @classmethod
