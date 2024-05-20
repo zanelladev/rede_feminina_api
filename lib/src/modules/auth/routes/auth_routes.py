@@ -9,17 +9,11 @@ class AuthRoutes:
     blueprint = Blueprint("auth", __name__, url_prefix="/auth")
 
     @classmethod
-    @blueprint.route("/login", methods=["POST"])
-    def login():
+    @blueprint.route("/signin", methods=["POST"])
+    async def signin():
         auth_repository = Injector.retrieve(IAuthRepository)
 
-        auth_repository.signIn()
-
-        users = [
-            UserEntity('id1', 'email1', 'password1', 'name1', 'surname1'),
-            UserEntity('id2', 'email2', 'password2', 'name2', 'surname2'),
-            UserEntity('id3', 'email3', 'password3', 'name3', 'surname3')
-        ]
+        await auth_repository.signIn()
 
         if not request.is_json:
             return jsonify({"msg": "Missing JSON in request"}), 400
@@ -33,15 +27,11 @@ class AuthRoutes:
         if not password:
             return jsonify({"msg": "Missing password parameter"}), 400
 
-        for user in users:
-            if user.email == username and user.password == password:
-                return {"msg": "User login successfully."}, 200
-
         return {"msg": "User not found."}, 404
 
     @classmethod
     @blueprint.route("/signup", methods=["POST"])
-    async def register():
+    async def signup():
         try:
             auth_repository = Injector.retrieve(IAuthRepository)
             await auth_repository.signUp()
