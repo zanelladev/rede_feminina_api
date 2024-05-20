@@ -1,6 +1,7 @@
 from flask import request, jsonify, Blueprint
 from lib.src.core.services.injector.injector import Injector
 from lib.src.modules.auth.domain.entities.user_entity import UserEntity
+from lib.src.modules.auth.domain.exceptions.user_not_found_exception import UserNotFoundException
 from lib.src.modules.auth.domain.repositories.i_auth_repository import IAuthRepository
 
 
@@ -27,7 +28,7 @@ class AuthRoutes:
         if not password:
             return jsonify({"msg": "Missing password parameter"}), 400
 
-        return {"msg": "User not found."}, 404
+        return jsonify(UserNotFoundException().toJson()), 404
 
     @classmethod
     @blueprint.route("/signup", methods=["POST"])
