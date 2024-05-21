@@ -1,5 +1,7 @@
 from flask import request, jsonify, Blueprint
+from lib.src.core.exceptions.missing_json_exception import MissingJsonException
 from lib.src.core.services.injector.injector import Injector
+from lib.src.modules.auth.domain.exceptions.missing_email_exception import MissingEmailException
 from lib.src.modules.auth.domain.exceptions.user_not_found_exception import UserNotFoundException
 from lib.src.modules.auth.domain.repositories.i_auth_repository import IAuthRepository
 
@@ -10,21 +12,21 @@ class AuthRoutes:
     @classmethod
     @blueprint.route("/signin", methods=["POST"])
     async def signin():
-        auth_repository = Injector.retrieve(IAuthRepository)
-
-        await auth_repository.signIn()
-
         if not request.is_json:
-            return jsonify({"msg": "Missing JSON in request"}), 400
+            return MissingJsonException().toJson(), 400
 
-        username = request.json.get("email", None)
+        email = request.json.get("email", None)
         password = request.json.get("password", None)
 
-        if not username:
-            return jsonify({"msg": "Missing username parameter"}), 400
+        if not email:
+            return MissingEmailException().toJson(), 400
 
         if not password:
             return jsonify({"msg": "Missing password parameter"}), 400
+
+        auth_repository = Injector.retrieve(IAuthRepository)
+
+        await auth_repository.signIn()
 
         return jsonify(UserNotFoundException().toJson()), 404
 
