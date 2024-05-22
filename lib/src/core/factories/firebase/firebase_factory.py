@@ -1,8 +1,11 @@
 import json
 import os
+
 import pyrebase
 
-from lib.src.core.factories.firebase.constants.firebase_constants import FirebaseConstants
+from lib.src.core.factories.firebase.constants.firebase_constants import (
+    FirebaseConstants,
+)
 
 
 class FirebaseFactory:
@@ -19,7 +22,8 @@ class FirebaseFactory:
     def _create():
         project_path = os.getcwd()
         firebase_config_path = os.path.join(
-            project_path, FirebaseConstants.firebase_config_path)
+            project_path, FirebaseConstants.firebase_config_path
+        )
 
         with open(firebase_config_path) as f:
             firebase_config = json.load(f)

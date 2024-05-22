@@ -1,6 +1,6 @@
-class MissingPasswordException(BaseException):
-    _message = "Missing password"
-    _code = "MISSING_PASSWORD"
+class InvalidEmailException(BaseException):
+    _message = "Invalid email"
+    _code = "INVALID_EMAIL"
 
     def __init__(self):
         super().__init__(self._message, self._code)
