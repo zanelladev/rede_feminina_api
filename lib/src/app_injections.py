@@ -16,5 +16,6 @@ class AppInjections:
             IAuthRepository, AuthRepository(Injector.retrieve(FirebaseFactory))
         )
         Injector.register(
-            AuthRoutes, AuthRepository(Injector.retrieve(IAuthRepository))
+            AuthRoutes,
+            AuthRoutes(Injector.retrieve(IAuthRepository)),
         )

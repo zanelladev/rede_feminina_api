@@ -21,22 +21,45 @@ from lib.src.modules.auth.domain.repositories.i_auth_repository import IAuthRepo
 
 
 class AuthRoutes(ValidateEmailMixin):
-    auth_repository = None
-
-    blueprint = Blueprint("auth", __name__, url_prefix="/auth")
-
     def __init__(self, auth_repository: IAuthRepository):
         self.auth_repository = auth_repository
+        self.blueprint = Blueprint("auth", __name__, url_prefix="/auth")
+        self._register_routes()
 
-    @blueprint.route("/signin", methods=["POST"])
+    def _register_routes(self):
+        self.blueprint.add_url_rule(
+            "/signin",
+            "signin",
+            self.signin,
+            methods=["POST"],
+        )
+        self.blueprint.add_url_rule(
+            "/signup",
+            "signup",
+            self.signup,
+            methods=["POST"],
+        )
+        self.blueprint.add_url_rule(
+            "/validate-token",
+            "validateToken",
+            self.validateToken,
+            methods=["POST"],
+        )
+        self.blueprint.add_url_rule(
+            "/refresh-token",
+            "refreshToken",
+            self.refreshToken,
+            methods=["POST"],
+        )
+
     async def signin(self):
         try:
-            AuthRoutes._validateJsonRequest(request)
+            self._validateJsonRequest(request)
 
             email = request.json.get("email", None)
             password = request.json.get("password", None)
 
-            AuthRoutes._validateEmailAndPassword(email, password)
+            self._validateEmailAndPassword(email, password)
 
             dto = SignInRequestDto(email, password)
 
@@ -61,15 +84,14 @@ class AuthRoutes(ValidateEmailMixin):
                 400,
             )
 
-    @blueprint.route("/signup", methods=["POST"])
     async def signup(self):
         try:
-            AuthRoutes._validateJsonRequest(request)
+            self._validateJsonRequest(request)
 
             email = request.json.get("email", None)
             password = request.json.get("password", None)
 
-            AuthRoutes._validateEmailAndPassword(email, password)
+            self._validateEmailAndPassword(email, password)
 
             await self.auth_repository.signUp()
 
@@ -86,10 +108,9 @@ class AuthRoutes(ValidateEmailMixin):
                 400,
             )
 
-    @blueprint.route("/validate-token", methods=["POST"])
     async def validateToken(self):
         try:
-            AuthRoutes._validateJsonRequest(request)
+            self._validateJsonRequest(request)
 
             await self.auth_repository.validateToken()
 
@@ -99,17 +120,16 @@ class AuthRoutes(ValidateEmailMixin):
             return (
                 jsonify(
                     {
-                        "msg": "An error occurred while trying to sign up the user.",
+                        "msg": "An error occurred while trying to validate the token.",
                         "error": str(e),
                     }
                 ),
                 400,
             )
 
-    @blueprint.route("/validate-token", methods=["POST"])
     async def refreshToken(self):
         try:
-            AuthRoutes._validateJsonRequest(request)
+            self._validateJsonRequest(request)
 
             await self.auth_repository.refreshToken()
 
@@ -119,7 +139,7 @@ class AuthRoutes(ValidateEmailMixin):
             return (
                 jsonify(
                     {
-                        "msg": "An error occurred while trying to sign up the user.",
+                        "msg": "An error occurred while trying to refresh the token.",
                         "error": str(e),
                     }
                 ),
@@ -129,15 +149,15 @@ class AuthRoutes(ValidateEmailMixin):
     @staticmethod
     def _validateJsonRequest(request: Request):
         if not MissingJsonException.validate_request(request):
-            return MissingJsonException().toJson(), 400
+            raise MissingJsonException()
 
     @staticmethod
     def _validateEmailAndPassword(email: str, password: str):
         if not email:
-            return MissingEmailException().toJson(), 400
+            raise MissingEmailException()
 
         if not ValidateEmailMixin.validate_email(email):
-            return InvalidEmailException().toJson(), 400
+            raise InvalidEmailException()
 
         if not password:
-            return MissingPasswordException().toJson(), 400
+            raise MissingPasswordException()
