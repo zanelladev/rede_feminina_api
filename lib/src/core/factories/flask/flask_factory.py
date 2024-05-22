@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_cors import CORS
 
+from lib.src.core.services.injector.injector import Injector
 from lib.src.modules.auth.routes.auth_routes import AuthRoutes
 
 
@@ -22,13 +23,15 @@ class FlaskFactory:
 
         CORS(app)
 
-        @app.route('/')
+        @app.route("/")
         def index():
-            return '<h1>Aplicacao server-side</h1>'
+            return "<h1>Aplicacao server-side</h1>"
 
         return app
 
     @staticmethod
     def _register_blueprints(app: Flask):
-        app.register_blueprint(AuthRoutes.blueprint)
+        authroutes = Injector.retrieve(AuthRoutes)
+
+        app.register_blueprint(authroutes.blueprint)
         return
