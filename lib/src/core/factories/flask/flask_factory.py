@@ -8,27 +8,28 @@ class FlaskFactory:
     _app = None
 
     @classmethod
-    def instance(cls):
-        if cls._app is None:
-            cls._app = cls.create_app()
+    def instance(self, auth_routes: AuthRoutes):
+        self.auth_routes = auth_routes
+        if self._app is None:
+            self._app = self.create_app(self)
 
-        return cls._app
+        return self._app
 
     @staticmethod
-    def create_app():
+    def create_app(self):
         app = Flask(__name__)
 
-        FlaskFactory._register_blueprints(app)
+        self._register_blueprints(self, app)
 
         CORS(app)
 
-        @app.route('/')
+        @app.route("/")
         def index():
-            return '<h1>Aplicacao server-side</h1>'
+            return "<h1>Aplicacao server-side</h1>"
 
         return app
 
     @staticmethod
-    def _register_blueprints(app: Flask):
-        app.register_blueprint(AuthRoutes.blueprint)
+    def _register_blueprints(self, app: Flask):
+        app.register_blueprint(self.auth_routes.blueprint)
         return
