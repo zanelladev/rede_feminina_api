@@ -1,46 +1,163 @@
-from flask import request, jsonify, Blueprint
+from http.client import HTTPException
+
+from flask import Blueprint, Request, jsonify, request
+
 from lib.src.core.exceptions.missing_json_exception import MissingJsonException
-from lib.src.core.services.injector.injector import Injector
-from lib.src.modules.auth.domain.exceptions.missing_email_exception import MissingEmailException
-from lib.src.modules.auth.domain.exceptions.user_not_found_exception import UserNotFoundException
+from lib.src.core.mixins.validate_email_mixin import ValidateEmailMixin
+from lib.src.modules.auth.domain.dtos.sign_in_request_dto import SignInRequestDto
+from lib.src.modules.auth.domain.exceptions.invalid_email_exception import (
+    InvalidEmailException,
+)
+from lib.src.modules.auth.domain.exceptions.missing_email_exception import (
+    MissingEmailException,
+)
+from lib.src.modules.auth.domain.exceptions.missing_password_exception import (
+    MissingPasswordException,
+)
+from lib.src.modules.auth.domain.exceptions.user_not_found_exception import (
+    UserNotFoundException,
+)
 from lib.src.modules.auth.domain.repositories.i_auth_repository import IAuthRepository
 
 
-class AuthRoutes:
-    blueprint = Blueprint("auth", __name__, url_prefix="/auth")
+class AuthRoutes(ValidateEmailMixin):
+    def __init__(self, auth_repository: IAuthRepository):
+        self.auth_repository = auth_repository
+        self.blueprint = Blueprint("auth", __name__, url_prefix="/auth")
+        self._register_routes()
 
-    @classmethod
-    @blueprint.route("/signin", methods=["POST"])
-    async def signin():
-        if not request.is_json:
-            return MissingJsonException().toJson(), 400
+    def _register_routes(self):
+        self.blueprint.add_url_rule(
+            "/signin",
+            "signin",
+            self.signin,
+            methods=["POST"],
+        )
+        self.blueprint.add_url_rule(
+            "/signup",
+            "signup",
+            self.signup,
+            methods=["POST"],
+        )
+        self.blueprint.add_url_rule(
+            "/validate-token",
+            "validateToken",
+            self.validateToken,
+            methods=["POST"],
+        )
+        self.blueprint.add_url_rule(
+            "/refresh-token",
+            "refreshToken",
+            self.refreshToken,
+            methods=["POST"],
+        )
 
-        email = request.json.get("email", None)
-        password = request.json.get("password", None)
-
-        if not email:
-            return MissingEmailException().toJson(), 400
-
-        if not password:
-            return jsonify({"msg": "Missing password parameter"}), 400
-
-        auth_repository = Injector.retrieve(IAuthRepository)
-
-        await auth_repository.signIn()
-
-        return jsonify(UserNotFoundException().toJson()), 404
-
-    @classmethod
-    @blueprint.route("/signup", methods=["POST"])
-    async def signup():
+    async def signin(self):
         try:
-            auth_repository = Injector.retrieve(IAuthRepository)
-            await auth_repository.signUp()
+            self._validateJsonRequest(request)
+
+            email = request.json.get("email", None)
+            password = request.json.get("password", None)
+
+            self._validateEmailAndPassword(email, password)
+
+            dto = SignInRequestDto(email, password)
+
+            user = await self.auth_repository.signIn(dto)
+
+            if user:
+                return jsonify(user), 200
+
+            return jsonify(UserNotFoundException().toJson()), 404
+
+        except HTTPException:
+            return jsonify(UserNotFoundException().toJson()), 404
+
+        except Exception as e:
+            return (
+                jsonify(
+                    {
+                        "msg": "An error occurred while trying to sign in the user.",
+                        "error": str(e),
+                    }
+                ),
+                400,
+            )
+
+    async def signup(self):
+        try:
+            self._validateJsonRequest(request)
+
+            email = request.json.get("email", None)
+            password = request.json.get("password", None)
+
+            self._validateEmailAndPassword(email, password)
+
+            await self.auth_repository.signUp()
 
             return {"msg": "User not found."}, 200
 
         except Exception as e:
-            return jsonify({
-                "msg": "An error occurred while trying to sign up the user.",
-                "error": str(e)
-            }), 400
+            return (
+                jsonify(
+                    {
+                        "msg": "An error occurred while trying to sign up the user.",
+                        "error": str(e),
+                    }
+                ),
+                400,
+            )
+
+    async def validateToken(self):
+        try:
+            self._validateJsonRequest(request)
+
+            await self.auth_repository.validateToken()
+
+            return {"msg": "User not found."}, 200
+
+        except Exception as e:
+            return (
+                jsonify(
+                    {
+                        "msg": "An error occurred while trying to validate the token.",
+                        "error": str(e),
+                    }
+                ),
+                400,
+            )
+
+    async def refreshToken(self):
+        try:
+            self._validateJsonRequest(request)
+
+            await self.auth_repository.refreshToken()
+
+            return {"msg": "User not found."}, 200
+
+        except Exception as e:
+            return (
+                jsonify(
+                    {
+                        "msg": "An error occurred while trying to refresh the token.",
+                        "error": str(e),
+                    }
+                ),
+                400,
+            )
+
+    @staticmethod
+    def _validateJsonRequest(request: Request):
+        if not MissingJsonException.validate_request(request):
+            raise MissingJsonException()
+
+    @staticmethod
+    def _validateEmailAndPassword(email: str, password: str):
+        if not email:
+            raise MissingEmailException()
+
+        if not ValidateEmailMixin.validate_email(email):
+            raise InvalidEmailException()
+
+        if not password:
+            raise MissingPasswordException()

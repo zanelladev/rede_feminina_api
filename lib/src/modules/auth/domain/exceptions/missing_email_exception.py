@@ -6,7 +6,4 @@ class MissingEmailException(BaseException):
         super().__init__(self._message, self._code)
 
     def toJson(self):
-        return {
-            'message': self._message,
-            'code': self._code
-        }
+        return {"message": self._message, "code": self._code}
