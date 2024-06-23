@@ -1,31 +1,14 @@
-from flask import Request
+from lib.src.core.exceptions.http_exception import HttpException
 
 
-class MissingJsonException(BaseException):
-    _message = "Missing JSON in request"
-    _code = "MISSING_JSON"
-
-    def __init__(self):
-        super().__init__(self._message, self._code)
+class MissingJsonException(HttpException):
+    def __init__(
+        self,
+        message="JSON body não encontrado na requisição",
+        code="MISSING_JSON",
+        status_code=400,
+    ):
+        super().__init__(message, code, status_code)
 
     def toJson(self):
-        return {
-            'message': self._message,
-            'code': self._code
-        }
-
-    @staticmethod
-    def validate_request(request: Request):
-        try:
-            if not request.is_json:
-                return False
-
-            data = request.get_json()
-
-            if not data:
-                return False
-
-            return True
-
-        except Exception:
-            return False
+        return super().toJson()

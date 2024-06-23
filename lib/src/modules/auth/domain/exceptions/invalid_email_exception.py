@@ -1,9 +1,14 @@
-class InvalidEmailException(BaseException):
-    _message = "Invalid email"
-    _code = "INVALID_EMAIL"
+from lib.src.core.exceptions.http_exception import HttpException
 
-    def __init__(self):
-        super().__init__(self._message, self._code)
+
+class InvalidEmailException(HttpException):
+    def __init__(
+        self,
+        message="Email inválido",
+        code="INVALID_EMAIL",
+        status_code=400,
+    ):
+        super().__init__(message, code, status_code)
 
     def toJson(self):
-        return {"message": self._message, "code": self._code}
+        return super().toJson()

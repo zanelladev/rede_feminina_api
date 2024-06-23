@@ -1,9 +1,14 @@
-class UserNotFoundException(BaseException):
-    _message = "User not found"
-    _code = "USER_NOT_FOUND"
+from lib.src.core.exceptions.http_exception import HttpException
 
-    def __init__(self):
-        super().__init__(self._message, self._code)
+
+class UserNotFoundException(HttpException):
+    def __init__(
+        self,
+        message="Usuário não encontrado",
+        code="USER_NOT_FOUND",
+        status_code=404,
+    ):
+        super().__init__(message, code, status_code)
 
     def toJson(self):
-        return {"message": self._message, "code": self._code}
+        return super().toJson()

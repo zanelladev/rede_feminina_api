@@ -152,11 +152,11 @@ class AuthRoutes(ValidateEmailMixin):
             raise MissingJsonException()
 
     @staticmethod
-    def _validateEmailAndPassword(email: str, password: str):
+    def _validateEmailAndPassword(self, email: str, password: str):
         if not email:
             raise MissingEmailException()
 
-        if not ValidateEmailMixin.validate_email(email):
+        if not self.validate_email(email):
             raise InvalidEmailException()
 
         if not password:
