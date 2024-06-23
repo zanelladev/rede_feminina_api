@@ -1,2 +1,7 @@
+# Python files
 **/__pycache__
 .pytest_cache
+
+# Environments files
+env/firebase_env.json
+env/env.json
