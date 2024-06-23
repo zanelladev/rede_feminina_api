@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, abort
 from flask_cors import CORS
 
 from lib.src.modules.auth.routes.auth_routes import AuthRoutes
@@ -42,6 +42,13 @@ class FlaskFactory:
         @app.route("/")
         def index():
             return "<h1>Aplicacao server-side</h1>"
+
+        # @app.before_request
+        # def before_request():
+        #     """Executa antes de cada requisição."""
+        #     if "user_id" not in session:
+        #         # If the user is not logged in, abort the request with a 401 Unauthorized status
+        #         abort(401, description="Unauthorized: Session is invalid or expired.")
 
         return app
 

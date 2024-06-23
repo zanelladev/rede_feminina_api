@@ -4,6 +4,7 @@ from flask import Blueprint, Request, jsonify, request
 
 from lib.src.core.exceptions.missing_json_exception import MissingJsonException
 from lib.src.core.mixins.validate_email_mixin import ValidateEmailMixin
+from lib.src.core.mixins.validate_json_body_mixin import ValidateJsonBodyMixin
 from lib.src.modules.auth.domain.dtos.sign_in_request_dto import SignInRequestDto
 from lib.src.modules.auth.domain.exceptions.invalid_email_exception import (
     InvalidEmailException,
@@ -20,7 +21,7 @@ from lib.src.modules.auth.domain.exceptions.user_not_found_exception import (
 from lib.src.modules.auth.domain.repositories.i_auth_repository import IAuthRepository
 
 
-class AuthRoutes(ValidateEmailMixin):
+class AuthRoutes(ValidateEmailMixin, ValidateJsonBodyMixin):
     def __init__(self, auth_repository: IAuthRepository):
         self.auth_repository = auth_repository
         self.blueprint = Blueprint("auth", __name__, url_prefix="/auth")
@@ -64,6 +65,8 @@ class AuthRoutes(ValidateEmailMixin):
             dto = SignInRequestDto(email, password)
 
             user = await self.auth_repository.signIn(dto)
+
+            await self.auth_repository.refreshToken(user["refreshToken"])
 
             if user:
                 return jsonify(user), 200
@@ -146,12 +149,10 @@ class AuthRoutes(ValidateEmailMixin):
                 400,
             )
 
-    @staticmethod
-    def _validateJsonRequest(request: Request):
-        if not MissingJsonException.validate_request(request):
+    def _validateJsonRequest(self, request: Request):
+        if not self.validate_json_body(request):
             raise MissingJsonException()
 
-    @staticmethod
     def _validateEmailAndPassword(self, email: str, password: str):
         if not email:
             raise MissingEmailException()

@@ -1,9 +1,7 @@
-from abc import ABC, abstractmethod
-
 from lib.src.core.exceptions.app_exception import AppException
 
 
-class HttpException(ABC, AppException):
+class HttpException(AppException):
     """Classe base abstrata para exceções HTTP personalizadas.
 
     Args:
@@ -32,7 +30,6 @@ class HttpException(ABC, AppException):
         """int: O código de status HTTP."""
         return self._status_code
 
-    @abstractmethod
     def toJson(self):
         """Retorna uma representação JSON da exceção.
 
@@ -42,5 +39,4 @@ class HttpException(ABC, AppException):
         return {
             "message": self.message,
             "code": self.code,
-            "status_code": self.status_code,
         }

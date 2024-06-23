@@ -3,7 +3,7 @@ from flask import Request
 
 class ValidateJsonBodyMixin:
     @staticmethod
-    def validate_request(request: Request):
+    def validate_json_body(request: Request):
         try:
             if not request.is_json:
                 return False
