@@ -1,12 +1,14 @@
-class MissingJsonException(BaseException):
-    _message = "Missing JSON in request"
-    _code = "MISSING_JSON"
+from lib.src.core.exceptions.http_exception import HttpException
 
-    def __init__(self):
-        super().__init__(self._message, self._code)
+
+class MissingJsonException(HttpException):
+    def __init__(
+        self,
+        message="JSON body não encontrado na requisição",
+        code="MISSING_JSON",
+        status_code=400,
+    ):
+        super().__init__(message, code, status_code)
 
     def toJson(self):
-        return {
-            'message': self._message,
-            'code': self._code
-        }
+        return super().toJson()
