@@ -5,6 +5,7 @@ from flask import Blueprint, Request, jsonify, request
 from lib.src.core.exceptions.missing_json_exception import MissingJsonException
 from lib.src.core.mixins.validate_email_mixin import ValidateEmailMixin
 from lib.src.core.mixins.validate_json_body_mixin import ValidateJsonBodyMixin
+from lib.src.core.routes.app_route import AppRoute
 from lib.src.modules.auth.domain.dtos.sign_in_request_dto import SignInRequestDto
 from lib.src.modules.auth.domain.exceptions.invalid_email_exception import (
     InvalidEmailException,
@@ -21,11 +22,14 @@ from lib.src.modules.auth.domain.exceptions.user_not_found_exception import (
 from lib.src.modules.auth.domain.repositories.i_auth_repository import IAuthRepository
 
 
-class AuthRoutes(ValidateEmailMixin, ValidateJsonBodyMixin):
+class AuthRoutes(AppRoute, ValidateEmailMixin, ValidateJsonBodyMixin):
     def __init__(self, auth_repository: IAuthRepository):
+        self.required_authorization = False
+        self.name = "auth"
         self.auth_repository = auth_repository
-        self.blueprint = Blueprint("auth", __name__, url_prefix="/auth")
+        self.blueprint = Blueprint(self.name, __name__, url_prefix=f"/{self.name}")
         self._register_routes()
+        super().__init__(self.required_authorization, self.name, self.blueprint)
 
     def _register_routes(self):
         self.blueprint.add_url_rule(
@@ -65,8 +69,6 @@ class AuthRoutes(ValidateEmailMixin, ValidateJsonBodyMixin):
             dto = SignInRequestDto(email, password)
 
             user = await self.auth_repository.signIn(dto)
-
-            await self.auth_repository.refreshToken(user["refreshToken"])
 
             if user:
                 return jsonify(user), 200

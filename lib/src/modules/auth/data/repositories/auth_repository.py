@@ -36,7 +36,10 @@ class AuthRepository(IAuthRepository):
 
         return user
 
-    async def validateToken(self, token: str):
+    async def validateToken(self, token: str) -> bool:
         user = self.auth.get_account_info(token)
 
-        return user
+        if user is None:
+            return False
+
+        return True
