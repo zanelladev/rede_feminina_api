@@ -4,6 +4,7 @@ from flask_cors import CORS
 from lib.src.app_routes import AppRoutes
 from lib.src.core.exceptions.http_exception import HttpException
 from lib.src.core.exceptions.invalid_token_exception import InvalidTokenException
+from lib.src.core.exceptions.missing_token_exception import MissingTokenException
 from lib.src.modules.auth.data.repositories.auth_repository import AuthRepository
 from lib.src.modules.auth.routes.auth_routes import AuthRoutes
 
@@ -54,17 +55,20 @@ class FlaskFactory:
                     return None
 
                 if "Authorization" not in request.headers:
-                    raise InvalidTokenException("Missing token.")
+                    raise MissingTokenException()
 
                 valid = await authRepository.validateToken(
                     request.headers.get("Authorization")
                 )
 
                 if not valid:
-                    raise InvalidTokenException("Missing token.")
+                    raise InvalidTokenException()
 
             except HttpException as e:
                 return e.toJson(), 401
+
+            except Exception as e:
+                return {"error": str(e)}, 500
 
         return app
 

@@ -6,7 +6,9 @@ from lib.src.core.exceptions.missing_json_exception import MissingJsonException
 from lib.src.core.mixins.validate_email_mixin import ValidateEmailMixin
 from lib.src.core.mixins.validate_json_body_mixin import ValidateJsonBodyMixin
 from lib.src.core.routes.app_route import AppRoute
-from lib.src.modules.auth.domain.dtos.sign_in_request_dto import SignInRequestDto
+from lib.src.modules.auth.domain.dtos.requests.sign_in_request_dto import (
+    SignInRequestDto,
+)
 from lib.src.modules.auth.domain.exceptions.invalid_email_exception import (
     InvalidEmailException,
 )
@@ -32,6 +34,7 @@ class AuthRoutes(AppRoute, ValidateEmailMixin, ValidateJsonBodyMixin):
         super().__init__(self.required_authorization, self.name, self.blueprint)
 
     def _register_routes(self):
+        # self.blueprint.before_request(self._validateJsonRequest)
         self.blueprint.add_url_rule(
             "/signin",
             "signin",
@@ -69,6 +72,8 @@ class AuthRoutes(AppRoute, ValidateEmailMixin, ValidateJsonBodyMixin):
             dto = SignInRequestDto(email, password)
 
             user = await self.auth_repository.signIn(dto)
+
+            print("User:", user)
 
             if user:
                 return jsonify(user), 200
