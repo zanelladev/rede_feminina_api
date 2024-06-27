@@ -12,8 +12,6 @@ class AppRoutes:
 
     def registerRoutes(self, app: Flask):
         for route in self.routes:
-            print(route.blueprint)
-
             app.register_blueprint(route.blueprint)
 
     def currentRouteNeedAuth(self, current_endpoint: str):
