@@ -1,13 +1,16 @@
 from flask import Flask
 
 from lib.src.modules.auth.routes.auth_routes import AuthRoutes
+from lib.src.modules.consultation.routes.consultation_routes import ConsultationRoutes
 
 
 class AppRoutes:
-    def __init__(self, auth_routes: AuthRoutes):
-        self.auth_routes = auth_routes
+    def __init__(
+        self, auth_routes: AuthRoutes, consultation_routes: ConsultationRoutes
+    ):
         self.routes = [
-            self.auth_routes,
+            auth_routes,
+            consultation_routes,
         ]
 
     def registerRoutes(self, app: Flask):

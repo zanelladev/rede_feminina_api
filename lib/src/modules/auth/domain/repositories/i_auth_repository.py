@@ -1,5 +1,8 @@
 from abc import ABC, abstractmethod
 
+from lib.src.modules.auth.domain.dtos.requests.fetch_user_by_token_request_dto import (
+    FetchUserByTokenRequestDto,
+)
 from lib.src.modules.auth.domain.dtos.requests.refresh_token_request_dto import (
     RefreshTokenRequestDto,
 )
@@ -11,6 +14,9 @@ from lib.src.modules.auth.domain.dtos.requests.sign_up_request_dto import (
 )
 from lib.src.modules.auth.domain.dtos.requests.validate_token_request_dto import (
     ValidateTokenRequestDto,
+)
+from lib.src.modules.auth.domain.dtos.responses.fetch_user_by_token_response_dto import (
+    FetchUserByTokenResponseDto,
 )
 from lib.src.modules.auth.domain.dtos.responses.refresh_token_response_dto import (
     RefreshTokenResponseDto,
@@ -45,4 +51,10 @@ class IAuthRepository(ABC):
     async def refreshToken(
         self, dto: RefreshTokenRequestDto
     ) -> RefreshTokenResponseDto:
+        pass
+
+    @abstractmethod
+    async def fetch_user_by_token(
+        self, dto: FetchUserByTokenRequestDto
+    ) -> FetchUserByTokenResponseDto:
         pass
