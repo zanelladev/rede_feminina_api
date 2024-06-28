@@ -1,6 +1,11 @@
-from flask import Flask, abort
+from flask import Flask, abort, request
 from flask_cors import CORS
 
+from lib.src.app_routes import AppRoutes
+from lib.src.core.exceptions.http_exception import HttpException
+from lib.src.core.exceptions.invalid_token_exception import InvalidTokenException
+from lib.src.core.exceptions.missing_token_exception import MissingTokenException
+from lib.src.modules.auth.data.repositories.auth_repository import AuthRepository
 from lib.src.modules.auth.routes.auth_routes import AuthRoutes
 
 
@@ -8,7 +13,7 @@ class FlaskFactory:
     _app = None
 
     @classmethod
-    def instance(cls, auth_routes: AuthRoutes):
+    def instance(cls, routes: AppRoutes, authRepository: AuthRepository):
         """Retorna uma instância única do aplicativo Flask.
 
         Args:
@@ -18,11 +23,11 @@ class FlaskFactory:
             Flask: Instância do aplicativo Flask.
         """
         if cls._app is None:
-            cls._app = cls.create_app(auth_routes)
+            cls._app = cls.create_app(routes, authRepository)
         return cls._app
 
     @staticmethod
-    def create_app(auth_routes: AuthRoutes) -> Flask:
+    def create_app(routes: AppRoutes, authRepository: AuthRepository) -> Flask:
         """Cria e configura o aplicativo Flask.
 
         Args:
@@ -34,7 +39,7 @@ class FlaskFactory:
         app = Flask(__name__)
 
         # Registra os blueprints
-        FlaskFactory._register_blueprints(app, auth_routes)
+        routes.registerRoutes(app)
 
         # Configura o CORS
         CORS(app)
@@ -43,12 +48,27 @@ class FlaskFactory:
         def index():
             return "<h1>Aplicacao server-side</h1>"
 
-        # @app.before_request
-        # def before_request():
-        #     """Executa antes de cada requisição."""
-        #     if "user_id" not in session:
-        #         # If the user is not logged in, abort the request with a 401 Unauthorized status
-        #         abort(401, description="Unauthorized: Session is invalid or expired.")
+        @app.before_request
+        async def before_request():
+            try:
+                if not routes.currentRouteNeedAuth(request.path):
+                    return None
+
+                if "Authorization" not in request.headers:
+                    raise MissingTokenException()
+
+                valid = await authRepository.validateToken(
+                    request.headers.get("Authorization")
+                )
+
+                if not valid:
+                    raise InvalidTokenException()
+
+            except HttpException as e:
+                return e.toJson(), 401
+
+            except Exception as e:
+                return {"error": str(e)}, 500
 
         return app
 
