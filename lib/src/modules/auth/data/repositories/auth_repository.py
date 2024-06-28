@@ -65,7 +65,7 @@ class AuthRepository(IAuthRepository):
                 dto.email, dto.password
             )
 
-            self.mysql_factory.connect()
+            await self.mysql_factory.connect()
             sql = "INSERT INTO user (id_firebase, name, surname, social_name, cpf, phone_number, email) VALUES (%s, %s, %s, %s, %s, %s, %s)"
             val = (
                 user["localId"],

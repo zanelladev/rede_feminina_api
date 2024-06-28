@@ -12,6 +12,9 @@ from lib.src.modules.consultation.domain.dtos.requests.consultation_edit_request
 from lib.src.modules.consultation.domain.dtos.requests.consultation_fetch_all_request_dto import (
     ConsultationFetchAllRequestDto,
 )
+from lib.src.modules.consultation.domain.dtos.responses.consultation_complete_response_dto import (
+    ConsultationCompleteResponseDto,
+)
 from lib.src.modules.consultation.domain.dtos.responses.consultation_create_response_dto import (
     ConsultationCreateResponseDto,
 )
@@ -45,5 +48,5 @@ class IConsultationRepository(ABC):
     @abstractmethod
     async def complete(
         self, dto: ConsultationCompleteRequestDto
-    ) -> ConsultationCompleteRequestDto:
+    ) -> ConsultationCompleteResponseDto:
         pass

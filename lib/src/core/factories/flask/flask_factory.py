@@ -6,6 +6,9 @@ from lib.src.core.exceptions.http_exception import HttpException
 from lib.src.core.exceptions.invalid_token_exception import InvalidTokenException
 from lib.src.core.exceptions.missing_token_exception import MissingTokenException
 from lib.src.modules.auth.data.repositories.auth_repository import AuthRepository
+from lib.src.modules.auth.domain.dtos.requests.validate_token_request_dto import (
+    ValidateTokenRequestDto,
+)
 from lib.src.modules.auth.routes.auth_routes import AuthRoutes
 
 
@@ -58,7 +61,7 @@ class FlaskFactory:
                     raise MissingTokenException()
 
                 valid = await authRepository.validateToken(
-                    request.headers.get("Authorization")
+                    ValidateTokenRequestDto(token=request.headers.get("Authorization"))
                 )
 
                 if not valid:
