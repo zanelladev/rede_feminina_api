@@ -127,7 +127,9 @@ class AuthRepository(IAuthRepository):
         self, dto: FetchUserByTokenRequestDto
     ) -> FetchUserByTokenResponseDto:
         firebase_user = self.auth.get_account_info(dto.token)
-        sql_user = self.fetch_user_by_id_firebase(firebase_user["users"][0]["localId"])
+        sql_user = await self.fetch_user_by_id_firebase(
+            firebase_user["users"][0]["localId"]
+        )
 
         return FetchUserByTokenResponseDto(
             user=UserEntity(
@@ -142,7 +144,7 @@ class AuthRepository(IAuthRepository):
             )
         )
 
-    def fetch_user_by_id_firebase(self, id_firebase):
+    async def fetch_user_by_id_firebase(self, id_firebase):
         try:
             self.mysql_factory.connect()
             cursor = self.mysql_factory.get_cursor()
