@@ -5,3 +5,4 @@
 # Environments files
 env/firebase_env.json
 env/env.json
+env/mysql_env.json

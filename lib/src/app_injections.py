@@ -1,6 +1,7 @@
 from lib.src.app_routes import AppRoutes
 from lib.src.core.factories.firebase.firebase_factory import FirebaseFactory
 from lib.src.core.factories.flask.flask_factory import FlaskFactory
+from lib.src.core.factories.mysql.mysql_factory import MySqlFactory
 from lib.src.core.services.injector.injector import Injector
 from lib.src.modules.auth.data.repositories.auth_repository import AuthRepository
 from lib.src.modules.auth.domain.repositories.i_auth_repository import IAuthRepository
@@ -15,9 +16,14 @@ class AppInjections:
             FirebaseFactory.instance(),
         )
         Injector.register(
+            MySqlFactory,
+            MySqlFactory(),
+        )
+        Injector.register(
             IAuthRepository,
             AuthRepository(
                 Injector.retrieve(FirebaseFactory),
+                Injector.retrieve(MySqlFactory),
             ),
         )
         Injector.register(

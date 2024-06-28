@@ -8,7 +8,7 @@ class SignUpRequestDto:
         password: str,
         name: str,
         surname: str,
-        cpf: int,
+        cpf: str,
         phone_number: int,
         social_name: Optional[str] = None,
     ):

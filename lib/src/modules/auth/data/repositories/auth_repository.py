@@ -1,3 +1,4 @@
+from lib.src.core.factories.mysql.mysql_factory import MySqlFactory
 from lib.src.modules.auth.domain.dtos.requests.refresh_token_request_dto import (
     RefreshTokenRequestDto,
 )
@@ -26,22 +27,25 @@ from lib.src.modules.auth.domain.repositories.i_auth_repository import IAuthRepo
 
 
 class AuthRepository(IAuthRepository):
-    def __init__(self, firebaseAuth):
+    def __init__(self, firebaseAuth, mysql_factory: MySqlFactory):
         self.auth = firebaseAuth
+        self.mysql_factory = mysql_factory
 
     async def signIn(self, dto: SignInRequestDto) -> SignInResponseDto:
         try:
             user = self.auth.sign_in_with_email_and_password(dto.email, dto.password)
+            sql_result = self.fetch_user_by_id_firebase(user["localId"])
 
             return SignInResponseDto(
-                email=user["email"],
+                id=sql_result["id"],
+                email=sql_result["email"],
                 refresh_token=user["refreshToken"],
                 id_token=user["idToken"],
-                cpf="",
-                name="",
-                surname="",
-                social_name="",
-                phone_number="",
+                cpf=sql_result["cpf"],
+                name=sql_result["name"],
+                surname=sql_result["surname"],
+                social_name=sql_result["social_name"],
+                phone_number=sql_result["phone_number"],
             )
 
         except Exception as e:
@@ -53,15 +57,36 @@ class AuthRepository(IAuthRepository):
                 dto.email, dto.password
             )
 
+            self.mysql_factory.connect()
+            sql = "INSERT INTO user (id_firebase, name, surname, social_name, cpf, phone_number, email) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+            val = (
+                user["localId"],
+                dto.name,
+                dto.surname,
+                dto.social_name,
+                dto.cpf,
+                str(dto.phone_number),
+                dto.email,
+            )
+
+            sql_cursor = self.mysql_factory.get_cursor()
+            sql_cursor.execute(sql, val)
+
+            self.mysql_factory.commit()
+            self.mysql_factory.close_connection()
+
+            sql_result = self.fetch_user_by_id_firebase(user["localId"])
+
             return SignUpResponseDto(
-                email=user["email"],
+                id=sql_result["id"],
+                email=sql_result["email"],
                 refresh_token=user["refreshToken"],
                 id_token=user["idToken"],
-                cpf="",
-                name="",
-                surname="",
-                social_name="",
-                phone_number="",
+                cpf=sql_result["cpf"],
+                name=sql_result["name"],
+                surname=sql_result["surname"],
+                social_name=sql_result["social_name"],
+                phone_number=sql_result["phone_number"],
             )
 
         except Exception as e:
@@ -89,3 +114,16 @@ class AuthRepository(IAuthRepository):
         except Exception as e:
             print(f"Error validating token: {e}")
             return ValidateTokenResponseDto(is_valid=False)
+
+    def fetch_user_by_id_firebase(self, id_firebase):
+        try:
+            self.mysql_factory.connect()
+            cursor = self.mysql_factory.get_cursor()
+            sql = "SELECT * FROM user WHERE id_firebase = %s"
+            val = (id_firebase,)
+            cursor.execute(sql, val)
+            result = cursor.fetchone()
+            return result
+        finally:
+            cursor.close()
+            self.mysql_factory.close_connection()
