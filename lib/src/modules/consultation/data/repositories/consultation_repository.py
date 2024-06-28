@@ -76,16 +76,16 @@ class ConsultationRepository(IConsultationRepository):
             self.mysql_factory.connect()
             cursor = self.mysql_factory.get_cursor()
 
-            if dto.user_role == UserRole.USER:
+            if dto.user.role == UserRole.USER:
                 update_sql = """
                 UPDATE consultation
                 SET date = %s, id_type = %s
                 WHERE id = %s AND id_user = %s
                 """
-                update_values = (dto.date, dto.id_type, dto.id, dto.id_user)
+                update_values = (dto.date, dto.id_type, dto.id, dto.user.id)
                 cursor.execute(update_sql, update_values)
 
-            if dto.user_role == UserRole.ADMIN:
+            if dto.user.role == UserRole.ADMIN:
                 update_sql = """
                 UPDATE consultation
                 SET date = %s, id_type = %s
@@ -204,15 +204,6 @@ class ConsultationRepository(IConsultationRepository):
             consultations=consultations,
         )
 
-    def consultationsFromRow(self, row):
-        return ConsultationFetchEntity(
-            id=row["id"],
-            date=row["date"],
-            is_completed=row["is_completed"],
-            user=UserEntity(),
-            id_type=row["id_type"],
-        )
-
     async def complete(
         self, dto: ConsultationCompleteRequestDto
     ) -> ConsultationCompleteResponseDto:
@@ -220,19 +211,19 @@ class ConsultationRepository(IConsultationRepository):
             self.mysql_factory.connect()
             cursor = self.mysql_factory.get_cursor()
 
-            if dto.user_role == UserRole.USER:
+            if dto.user.role == UserRole.USER:
                 update_sql = """
                 UPDATE consultation
-                SET is_completed = %s,
+                SET is_completed = %s
                 WHERE id = %s AND id_user = %s
                 """
                 update_values = (True, dto.id, dto.id_user)
                 cursor.execute(update_sql, update_values)
 
-            if dto.user_role == UserRole.ADMIN:
+            if dto.user.role == UserRole.ADMIN:
                 update_sql = """
                 UPDATE consultation
-                SET is_completed = %s,
+                SET is_completed = %s
                 WHERE id = %s
                 """
                 update_values = (True, dto.id)

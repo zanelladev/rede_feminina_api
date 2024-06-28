@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from lib.src.modules.auth.domain.entities.user_entity import UserEntity
 from lib.src.modules.auth.domain.entities.user_role import UserRole
 
 
@@ -9,11 +10,9 @@ class ConsultationEditRequestDto:
         id: int,
         date: datetime,
         id_type: int,
-        id_user: int,
-        user_role: UserRole,
+        user: UserEntity,
     ):
         self.id = id
         self.date = date
         self.id_type = id_type
-        self.id_user = id_user
-        self.user_role = user_role
+        self.user = user
