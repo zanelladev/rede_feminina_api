@@ -1,2 +1,6 @@
 **/__pycache__
 .pytest_cache
+
+# Env files
+**firebase_env.json
+**mysql_env.json
