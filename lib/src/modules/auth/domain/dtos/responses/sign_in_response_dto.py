@@ -1,9 +1,7 @@
 from typing import Optional
 
-from lib.src.modules.auth.domain.entities.user_role import UserRole
 
-
-class UserEntity:
+class SignInResponseDto:
     def __init__(
         self,
         id: int,
@@ -12,7 +10,8 @@ class UserEntity:
         surname: str,
         cpf: str,
         phone_number: int,
-        role: UserRole,
+        id_token: str,
+        refresh_token: str,
         social_name: Optional[str] = None,
     ):
         self.id = id
@@ -21,5 +20,6 @@ class UserEntity:
         self.surname = surname
         self.cpf = cpf
         self.phone_number = phone_number
-        self.role = role
+        self.id_token = id_token
+        self.refresh_token = refresh_token
         self.social_name = social_name
