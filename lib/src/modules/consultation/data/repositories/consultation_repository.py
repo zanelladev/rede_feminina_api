@@ -85,14 +85,26 @@ class ConsultationRepository(IConsultationRepository):
                 update_values = (dto.date, dto.id_type, dto.id, dto.user.id)
                 cursor.execute(update_sql, update_values)
 
-            if dto.user.role == UserRole.ADMIN:
-                update_sql = """
+            update_parts = []
+            update_values = []
+
+            if dto.date is not None:
+                update_parts.append("date = %s")
+                update_values.append(dto.date)
+
+            if dto.id_type is not None:
+                update_parts.append("id_type = %s")
+                update_values.append(dto.id_type)
+
+            update_values.append(dto.id)
+
+            update_sql = f"""
                 UPDATE consultation
-                SET date = %s, id_type = %s
+                SET {', '.join(update_parts)}
                 WHERE id = %s
-                """
-                update_values = (dto.date, dto.id_type, dto.id)
-                cursor.execute(update_sql, update_values)
+              """
+
+            cursor.execute(update_sql, tuple(update_values))
 
             self.mysql_factory.commit()
 

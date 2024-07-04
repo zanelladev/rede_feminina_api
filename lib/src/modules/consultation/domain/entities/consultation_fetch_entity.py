@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from lib.src.modules.auth.domain.entities.user_entity import UserEntity
 
@@ -10,7 +11,7 @@ class ConsultationFetchEntity:
         date: datetime,
         is_completed: bool,
         id_type: int,
-        user: UserEntity,
+        user: Optional[UserEntity] = None,
     ):
         self.id = id
         self.date = date

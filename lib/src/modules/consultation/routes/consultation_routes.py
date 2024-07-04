@@ -87,8 +87,12 @@ class ConsultationRoutes(AppRoute, ValidateJsonBodyMixin):
         try:
             self._validateJsonRequest(request)
 
+            token = request.headers.get("Authorization")
+
             user_response = await self.auth_repository.fetch_user_by_token(
-                FetchUserByTokenRequestDto(token=request.headers.get("Authorization"))
+                FetchUserByTokenRequestDto(
+                    token=token,
+                )
             )
 
             response = await self.consultation_repository.create(

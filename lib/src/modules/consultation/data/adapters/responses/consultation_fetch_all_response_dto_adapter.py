@@ -27,6 +27,10 @@ class ConsultationFetchAllResponseDtoAdapter:
             "id": entity.id,
             "date": entity.date.isoformat(),
             "is_completed": entity.is_completed,
-            "user": UserEntityAdapter.to_dict(entity.user),
+            **(
+                {"user": UserEntityAdapter.to_dict(entity.user)}
+                if entity.user is not None
+                else {}
+            ),
             "id_type": entity.id_type,
         }
